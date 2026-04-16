@@ -18,4 +18,5 @@ gcc -o banqueiro src/main.c -lpthread -Wall
 ```
 ## Autores
 
-- [Caio César Falinacio dos Santos / Luiz Fernando Cunha Maia]
+- Caio César Falinacio dos Santos
+- Luiz Fernando Cunha Maia
