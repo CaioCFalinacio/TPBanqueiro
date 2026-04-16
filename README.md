@@ -16,6 +16,18 @@ Para compilar o código fonte, certifique-se de ter o compilador GCC instalado. 
 ```bash
 gcc -o banqueiro src/main.c -lpthread -Wall
 ```
+
+## Como Executar
+
+Formato:
+```bash
+./banqueiro [recurso_1] [recurso_2] [recurso_3]
+```
+
+Exemplo prático:
+```bash
+./banqueiro 10 5 7
+```
 ## Autores
 
 - Caio César Falinacio dos Santos
