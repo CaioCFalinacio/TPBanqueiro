@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <time.h>
 
 /* Constantes definidas no roteiro do trabalho */
 #define NUMBER_OF_CUSTOMERS 5  
@@ -33,13 +34,59 @@ void* customer_thread(void* customer_id);
 
 int main(int argc, char *argv[]){
 
-    // TODO: Validar e ler os argumentos da linha de comando (argv) para preencher 'available'
-    
-    // TODO: Inicializar matrizes maximum, allocation e need
-    
-    // TODO: Inicializar o mutex
-    
-    // TODO: Criar as N threads
+    // Validando argumentos da linha de comando
+    if (argc != NUMBER_OF_RESOURCES + 1) {
+        printf("Uso incorreto. Exemplo: ./banqueiro 10 5 7\n");
+        return -1;
+    }
+
+    // Inicializando o gerador de números aleatórios
+    srand(time(NULL));
+
+    // Inicializando o array 'available' com os argumentos 
+    for (int i = 0; i < NUMBER_OF_RESOURCES; i++) {
+        available[i] = atoi(argv[i + 1]);
+    }
+
+    // Inicializando os dados de teste clássicos do livro do Silberschatz para 'maximum'
+    int max_test_data[NUMBER_OF_CUSTOMERS][NUMBER_OF_RESOURCES] = {
+        {7, 5, 3}, // Cliente 0
+        {3, 2, 2}, // Cliente 1
+        {9, 0, 2}, // Cliente 2
+        {2, 2, 2}, // Cliente 3
+        {4, 3, 3}  // Cliente 4
+    };
+
+    // Inicializando matrizes maximum, allocation e need
+    for (int i = 0; i < NUMBER_OF_CUSTOMERS; i++) {
+        for (int j = 0; j < NUMBER_OF_RESOURCES; j++) {
+            maximum[i][j] = max_test_data[i][j];
+            allocation[i][j] = 0; // Começa com nada alocado
+            need[i][j] = maximum[i][j]; // Necessidade inicial é a máxima
+        }
+    }
+
+    // Inicializando o Mutex
+    pthread_mutex_init(&banco_mutex, NULL);
+    printf("Banco aberto com recursos iniciais: [%d, %d, %d]\n\n", available[0], available[1], available[2]);
+
+    // Criando as Threads dos clientes
+    pthread_t threads[NUMBER_OF_CUSTOMERS];
+    int thread_ids[NUMBER_OF_CUSTOMERS]; // Array para passar o ID corretamente
+
+    for (int i = 0; i < NUMBER_OF_CUSTOMERS; i++) {
+        thread_ids[i] = i;
+        pthread_create(&threads[i], NULL, customer_thread, &thread_ids[i]);
+    }
+
+    // Aguardando todas as threads terminarem (Join)
+    for (int i = 0; i < NUMBER_OF_CUSTOMERS; i++) {
+        pthread_join(threads[i], NULL);
+    }
+
+    // Limpando o mutex ao finalizar
+    pthread_mutex_destroy(&banco_mutex);
+    printf("\nTodos os clientes terminaram. Banco fechado.\n");
 
     return 0;
 }
@@ -149,7 +196,7 @@ int request_resources(int customer_num, int request[]){
     }
 }
 
-int release_resources(int customer_num, int request[]){
+int release_resources(int customer_num, int release[]){
     // Bloquear o mutex para evitar condição de corrida
     pthread_mutex_lock(&banco_mutex);
 
@@ -179,7 +226,7 @@ void* customer_thread(void* param) {
     int request[NUMBER_OF_RESOURCES];
     int release[NUMBER_OF_RESOURCES];
 
-    while (true) { 
+    for(int iter = 0; iter < 5; iter++) { 
         
         // Gerando requisição aleatória limitada pelo 'need'
         for (int i = 0; i < NUMBER_OF_RESOURCES; i++) {
