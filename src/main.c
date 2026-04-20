@@ -186,7 +186,7 @@ void* customer_thread(void* param) {
     int request[NUMBER_OF_RESOURCES];
     int release[NUMBER_OF_RESOURCES];
 
-    for(int iter = 0; iter < 5; iter++) { 
+    while(true) { 
         
         for (int i = 0; i < NUMBER_OF_RESOURCES; i++) {
             if (need[customer_num][i] > 0) {
@@ -216,6 +216,8 @@ void* customer_thread(void* param) {
             printf("--> NEGADO: Pedido do Cliente %d deixaria o banco inseguro (Aguardando...)\n", customer_num);
             sleep(1); 
         }
+
+        sleep(1);
     }
     return NULL;
 }
